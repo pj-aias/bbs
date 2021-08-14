@@ -11,6 +11,7 @@ group = "0.10.0"
 sha2 = "0.9.3"
 byteorder = "1.4.3"
 rand = "0.8.3"
+serde = { version = "^1.0.127", features = ["derive"] }
 
 [dependencies.ff]
 version = "0.10"
@@ -20,7 +21,7 @@ default-features = false
 git="https://github.com/akakou/bls12_381/"
 branch="features/gt_supports"
 default-features=false
-features=["alloc", "group", "pairings"]
+features=["alloc", "group", "pairings", "serde"]
 
 [dependencies.slice_as_array]
 git = "https://github.com/akakou/slice_as_array"

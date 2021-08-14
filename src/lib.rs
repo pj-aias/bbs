@@ -10,14 +10,17 @@ use byteorder::{BigEndian, ByteOrder};
 use ff::Field;
 use group::{Curve, Group, GroupEncoding};
 use rand::RngCore;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+#[derive(Serialize, Deserialize)]
 pub struct GSK {
     pub xi_1: Scalar,
     pub xi_2: Scalar,
     pub gamma: Scalar,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct GPK {
     pub h: G1Projective,
     pub u: G1Projective,
@@ -32,6 +35,7 @@ pub struct SetUpResult {
     pub gsk: GSK,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct ISK {
     pub x: Scalar,
     pub a_i: G1Projective,
