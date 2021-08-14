@@ -1,7 +1,11 @@
+#![no_std]
 #[warn(non_snake_case)]
 #[macro_use]
 extern crate slice_as_array;
+#[macro_use]
+extern crate alloc;
 
+use alloc::vec::Vec;
 use bls12_381::{pairing, G1Projective, G2Projective, Scalar};
 use byteorder::{BigEndian, ByteOrder};
 use ff::Field;
