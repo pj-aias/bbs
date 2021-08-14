@@ -1,5 +1,4 @@
 #![no_std]
-#[warn(non_snake_case)]
 #[macro_use]
 extern crate slice_as_array;
 #[macro_use]
