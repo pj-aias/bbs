@@ -41,6 +41,7 @@ pub struct ISK {
     pub a_i: G1Projective,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Signature {
     pub t1: G1Projective,
     pub t2: G1Projective,
