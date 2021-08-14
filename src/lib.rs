@@ -53,7 +53,7 @@ pub struct Signature {
     pub s_delta2: Scalar,
 }
 
-fn setup(rng: &mut impl RngCore) -> SetUpResult {
+pub fn setup(rng: &mut impl RngCore) -> SetUpResult {
     let g1 = G1Projective::generator();
     let g2 = G2Projective::generator();
 
@@ -76,7 +76,7 @@ fn setup(rng: &mut impl RngCore) -> SetUpResult {
     SetUpResult { gsk, gpk }
 }
 
-fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> ISK {
+pub fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> ISK {
     let x = gen_rand_scalar(rng);
     let tmp = (gsk.gamma + x).invert().unwrap();
     let a_i = gpk.g1 * tmp;
@@ -84,7 +84,7 @@ fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> ISK {
     ISK { a_i, x }
 }
 
-fn sign(isk: &ISK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
+pub fn sign(isk: &ISK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
     let ISK { a_i, x } = isk;
     let GPK {
         h,
@@ -154,7 +154,7 @@ fn sign(isk: &ISK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
     }
 }
 
-fn verify(signature: &Signature, gpk: &GPK) -> Result<(), ()> {
+pub fn verify(signature: &Signature, gpk: &GPK) -> Result<(), ()> {
     let Signature {
         t1,
         t2,
@@ -202,13 +202,13 @@ fn verify(signature: &Signature, gpk: &GPK) -> Result<(), ()> {
     }
 }
 
-fn is_signed_member(isk: &ISK, signature: &Signature, gsk: &GSK) -> bool {
+pub fn is_signed_member(isk: &ISK, signature: &Signature, gsk: &GSK) -> bool {
     let a_v = signature.t3 - (signature.t1 * gsk.xi_2 + signature.t2 * gsk.xi_1);
 
     isk.a_i == a_v
 }
 
-pub fn calc_sha256_scalar(vec: &[u8]) -> Scalar {
+fn calc_sha256_scalar(vec: &[u8]) -> Scalar {
     let mut hasher = Sha256::new();
     hasher.update(vec);
     let hashed = hasher.finalize().to_vec();
@@ -220,11 +220,11 @@ pub fn calc_sha256_scalar(vec: &[u8]) -> Scalar {
     Scalar::from_raw(*schalar)
 }
 
-pub fn gen_rand_scalar(rng: &mut impl RngCore) -> Scalar {
+fn gen_rand_scalar(rng: &mut impl RngCore) -> Scalar {
     Scalar::random(rng)
 }
 
-pub fn gen_rand_g1(rng: &mut impl RngCore) -> G1Projective {
+fn gen_rand_g1(rng: &mut impl RngCore) -> G1Projective {
     G1Projective::random(rng)
 }
 
