@@ -4,6 +4,8 @@ extern crate slice_as_array;
 #[macro_use]
 extern crate alloc;
 
+pub mod sign;
+
 use alloc::vec::Vec;
 use bls12_381::{pairing, G1Projective, G2Projective, Scalar};
 use byteorder::{BigEndian, ByteOrder};
@@ -83,76 +85,6 @@ pub fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> USK {
     let a = gpk.g1 * tmp;
 
     USK { a, x }
-}
-
-pub fn sign(usk: &USK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
-    let USK { a: _, x } = usk;
-    let GPK {
-        h,
-        u,
-        v,
-        w,
-        g1: _,
-        g2,
-    } = gpk;
-
-    let a = gen_rand_scalar(rng);
-    let b = gen_rand_scalar(rng);
-
-    let ra = gen_rand_scalar(rng);
-    let rb = gen_rand_scalar(rng);
-    let rx = gen_rand_scalar(rng);
-    let r_delta1 = gen_rand_scalar(rng);
-    let r_delta2 = gen_rand_scalar(rng);
-
-    let t1 = u * a;
-    let t2 = v * b;
-    let t3 = usk.a + h * (a + b);
-
-    let delta1 = a * x;
-    let delta2 = b * x;
-
-    let r1 = u * ra;
-    let r2 = v * rb;
-
-    let a1 = pairing(&t3.to_affine(), &g2.to_affine());
-    let a2 = pairing(&h.to_affine(), &w.to_affine());
-    let a3 = pairing(&h.to_affine(), &g2.to_affine());
-
-    let r3 = a1 * rx + a2 * (-ra - rb) + a3 * (-r_delta1 - r_delta2);
-
-    let r4 = t1 * rx + u * -r_delta1;
-    let r5 = t2 * rx + v * -r_delta2;
-
-    let mut c: Vec<u8> = vec![];
-    c.append(&mut t1.to_bytes().as_ref().to_vec());
-    c.append(&mut t2.to_bytes().as_ref().to_vec());
-    c.append(&mut t3.to_bytes().as_ref().to_vec());
-    c.append(&mut r1.to_bytes().as_ref().to_vec());
-    c.append(&mut r2.to_bytes().as_ref().to_vec());
-    c.append(&mut r3.to_bytes().as_ref().to_vec());
-    c.append(&mut r4.to_bytes().as_ref().to_vec());
-    c.append(&mut r5.to_bytes().as_ref().to_vec());
-
-    let c = calc_sha256_scalar(&c);
-
-    let sa = ra + c * a;
-    let sb = rb + c * b;
-    let sx = rx + c * x;
-    let s_delta1 = r_delta1 + c * delta1;
-    let s_delta2 = r_delta2 + c * delta2;
-
-    Signature {
-        t1,
-        t2,
-        t3,
-        c,
-        sa,
-        sb,
-        sx,
-        s_delta1,
-        s_delta2,
-    }
 }
 
 pub fn verify(signature: &Signature, gpk: &GPK) -> Result<(), ()> {
@@ -235,7 +167,7 @@ fn test_all() {
     let mut rng = thread_rng();
     let SetUpResult { gsk, gpk } = setup(&mut rng);
     let usk = issue(&gsk, &gpk, &mut rng);
-    let sig = sign(&usk, &gpk, &mut rng);
+    let sig = sign::sign(&usk, &gpk, &mut rng);
     verify(&sig, &gpk).unwrap();
 
     assert!(is_signed_member(&usk, &sig, &gsk));
