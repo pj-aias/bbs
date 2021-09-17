@@ -9,18 +9,18 @@ use group::{Curve, GroupEncoding};
 use rand::RngCore;
 
 pub struct SignCredBeforeHashing {
-    y: Scalar,
-    r: Scalar,
-    r_delta: Scalar,
-    t: G1Projective,
-    delta: Scalar,
-    r_first: G1Projective,
-    r_second: G1Projective,
+    pub y: Scalar,
+    pub r: Scalar,
+    pub r_delta: Scalar,
+    pub t: G1Projective,
+    pub delta: Scalar,
+    pub r_first: G1Projective,
+    pub r_second: G1Projective,
 }
 
 pub struct SignCredAfterHashing {
-    s: Scalar,
-    s_delta: Scalar,
+    pub s: Scalar,
+    pub s_delta: Scalar,
 }
 
 pub fn process_sign_before_hash(
