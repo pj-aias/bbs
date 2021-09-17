@@ -36,9 +36,9 @@ pub struct SetUpResult {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct ISK {
+pub struct USK {
     pub x: Scalar,
-    pub a_i: G1Projective,
+    pub a: G1Projective,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -77,16 +77,16 @@ pub fn setup(rng: &mut impl RngCore) -> SetUpResult {
     SetUpResult { gsk, gpk }
 }
 
-pub fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> ISK {
+pub fn issue(gsk: &GSK, gpk: &GPK, rng: &mut impl RngCore) -> USK {
     let x = gen_rand_scalar(rng);
     let tmp = (gsk.gamma + x).invert().unwrap();
-    let a_i = gpk.g1 * tmp;
+    let a = gpk.g1 * tmp;
 
-    ISK { a_i, x }
+    USK { a, x }
 }
 
-pub fn sign(isk: &ISK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
-    let ISK { a_i, x } = isk;
+pub fn sign(usk: &USK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
+    let USK { a: _, x } = usk;
     let GPK {
         h,
         u,
@@ -107,7 +107,7 @@ pub fn sign(isk: &ISK, gpk: &GPK, rng: &mut impl RngCore) -> Signature {
 
     let t1 = u * a;
     let t2 = v * b;
-    let t3 = a_i + h * (a + b);
+    let t3 = usk.a + h * (a + b);
 
     let delta1 = a * x;
     let delta2 = b * x;
@@ -203,10 +203,10 @@ pub fn verify(signature: &Signature, gpk: &GPK) -> Result<(), ()> {
     }
 }
 
-pub fn is_signed_member(isk: &ISK, signature: &Signature, gsk: &GSK) -> bool {
+pub fn is_signed_member(usk: &USK, signature: &Signature, gsk: &GSK) -> bool {
     let a_v = signature.t3 - (signature.t1 * gsk.xi_2 + signature.t2 * gsk.xi_1);
 
-    isk.a_i == a_v
+    usk.a == a_v
 }
 
 fn calc_sha256_scalar(vec: &[u8]) -> Scalar {
@@ -234,9 +234,9 @@ fn test_all() {
     use rand::thread_rng;
     let mut rng = thread_rng();
     let SetUpResult { gsk, gpk } = setup(&mut rng);
-    let isk = issue(&gsk, &gpk, &mut rng);
-    let sig = sign(&isk, &gpk, &mut rng);
+    let usk = issue(&gsk, &gpk, &mut rng);
+    let sig = sign(&usk, &gpk, &mut rng);
     verify(&sig, &gpk).unwrap();
 
-    assert!(is_signed_member(&isk, &sig, &gsk));
+    assert!(is_signed_member(&usk, &sig, &gsk));
 }
