@@ -15,14 +15,14 @@ use rand::RngCore;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct GSK {
     pub xi_1: Scalar,
     pub xi_2: Scalar,
     pub gamma: Scalar,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct GPK {
     pub h: G1Projective,
     pub u: G1Projective,
@@ -32,18 +32,13 @@ pub struct GPK {
     pub g2: G2Projective,
 }
 
-pub struct SetUpResult {
-    pub gpk: GPK,
-    pub gsk: GSK,
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct USK {
     pub x: Scalar,
     pub a: G1Projective,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Signature {
     pub t1: G1Projective,
     pub t2: G1Projective,
@@ -54,6 +49,11 @@ pub struct Signature {
     pub sx: Scalar,
     pub s_delta1: Scalar,
     pub s_delta2: Scalar,
+}
+
+pub struct SetUpResult {
+    pub gpk: GPK,
+    pub gsk: GSK,
 }
 
 pub fn setup(rng: &mut impl RngCore) -> SetUpResult {
